@@ -17,55 +17,61 @@ class VideosCSVController extends Controller
         $videos["brands"] = [];
 
         foreach ($files as $key => $file) {
-            if(!str_contains($file, ':Zone.Identifier')
-                && '.' !== $file
-                && '..' !== $file
-                && '.gitignore' !== $file){
-                if (($open = fopen(storage_path() . "/app/videos/" . $file, "r")) !== FALSE) {
-                    $row = 0;
-                    $make = null;
-                    $model = null;
-                    $brand = [];
-                    while (($data = fgetcsv($open, 1000, ",")) !== FALSE) {
-                        if( $row == 0 ) {
-                            $make = strtolower($data[0]);
-                            $brand[$make] = [];
-                            $brand[$make]["brand"] = strtolower($make);
-                        }
-                        if( $row == 3 ) {
-                            $brand[$make]["video_title"] = $data[0];
-                            $brand[$make]["video_url"] = $data[2];
-                            $brand[$make]["instructions"] = [];
-                            $brand[$make]["models"] = [];
-                        }
-                        if( $row > 5 && $data[1] !== "" ) {
-
-                            if( $model !== $data[0] && $data[0] !== "" )
-                            {
-                                $model = $data[0];
-                                $brand[$make]["models"][$model] = [];
-                                $brand[$make]["models"][$model]["model"] = $model;
-                                $brand[$make]["models"][$model]["instructions"] = [];
-                                $brand[$make]["models"][$model]["collections"] = [];
-                            }
-
-                            if( $model == $data )
-                            
-                            $new_model = [];
-                            $new_model["collection"] = $data[1];
-                            $new_model["url"] = $data[3];
-                            $new_model["title"] = $data[2];
-
-                            $brand[$make]["models"][$model]["collections"][] = $new_model;
-                        }
-
-                        $row++;
+            if (($open = fopen(storage_path() . "/app/videos/" . $file, "r")) !== FALSE && !is_file(storage_path() . "/app/videos/" . $file) === false) {
+                $row = 0;
+                $make = null;
+                $model = null;
+                $brand = [];
+                while (($data = fgetcsv($open, 1000, ",")) !== FALSE) {
+                    //retrieve the car brand name to lower case
+                    if( $row == 0 ) {
+                        $make = strtolower($data[0]);
+                        $brand[$make] = [];
+                        $brand[$make]["brand"] = strtolower($make);
                     }
 
-                    $videos["brands"][] = $brand[$make];
 
-                    fclose($open);
+                    //retrieve the car brand video meta
+                    if( $row == 3 ) {
+                        $brand[$make]["video_title"] = $data[0];
+                        $brand[$make]["video_url"] = $data[2];
+                        $brand[$make]["instructions"] = [];
+                        $brand[$make]["models"] = [];
+                    }
+
+
+                    //start getting the model meta
+                    if( $row > 5 && $data[1] !== "" ) {
+
+                        //check if there's no empty data and get model meta
+                        if( $model !== $data[0] && $data[0] !== "" )
+                        {
+                            $model = $data[0];
+                            $brand[$make]["models"][$model] = [];
+                            $brand[$make]["models"][$model]["model"] = $model;
+                            $brand[$make]["models"][$model]["instructions"] = [];
+                            $brand[$make]["models"][$model]["collections"] = [];
+                        }
+
+
+                        // if( $model == $data )
+                        
+                        $new_model = [];
+                        $new_model["collection-name"] = $data[1];
+                        $new_model["collection-url"] = $data[2];
+                        $new_model["collection-id"] = $data[3];
+                        $new_model["video-title"] = $data[4];
+                        $new_model["video-url"] = $data[5];
+
+                        $brand[$make]["models"][$model]["collections"][] = $new_model;
+                    }
+
+                    $row++;
                 }
+
+                $videos["brands"][] = $brand[$make];
+
+                fclose($open);
             }
         }
 
