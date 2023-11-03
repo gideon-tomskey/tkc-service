@@ -6,8 +6,14 @@ use Illuminate\Http\Request;
 
 class CSVController extends Controller
 {
-    public function convert()
+    public function make_csv_form() {
+        return view('make-csv-form');
+    }
+
+    public function convert(Request $request)
     {
+        $file = $request->file('file');
+
         $cars = [];
 
         //Get the latest CSV File
@@ -28,7 +34,7 @@ class CSVController extends Controller
 
 
         //Check if File Exists
-        if (($open = fopen(storage_path() . "/app/public/" . $recent_file, "r")) !== FALSE) {
+        if (($open = fopen($file, "r")) !== FALSE) {
 
             while (($data = fgetcsv($open, 1000, ",")) !== FALSE) {
                 $cars[] = $data;
@@ -36,6 +42,10 @@ class CSVController extends Controller
 
             fclose($open);
         }
+
+        // while (($data = fgetcsv($file, 1000, ",")) !== FALSE) {
+        //     $cars[] = $data;
+        // }
 
         $brands = [];
         
@@ -76,6 +86,7 @@ class CSVController extends Controller
 
             $brands[$brandname]["models"][$modelname]["years"][$year_assoc]["name"] = $cars[$i][2] . "-" . $cars[$i][3] . ($cars[$i][4] == "" ? "" : " <b>" . $cars[$i][4] . "</b>");
             $brands[$brandname]["models"][$modelname]["years"][$year_assoc]["url"] = $cars[$i][5];
+            $brands[$brandname]["models"][$modelname]["years"][$year_assoc]["is_redirect"] = $cars[$i][6] == "Redirect";
         }
         $brands = array_values($brands);
 

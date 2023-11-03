@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CSVController;
 use App\Http\Controllers\VideosCSVController;
+use App\Http\Controllers\OrderRankingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,5 +20,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/csv/convert', [CSVController::class, 'convert']);
+Route::get('/csv/convert', [CSVController::class, 'make_csv_form'])->name('csv-convert-form');
+Route::post('/csv/convert', [CSVController::class, 'convert'])->name('csv-convert');
 Route::get('/videos-csv/convert', [VideosCSVController::class, 'convert']);
+Route::get('/order-rankings', [OrderRankingController::class, 'index']);
+Route::get('/shopify/orders', [OrderRankingController::class,'getOrders'])->name('orders.index');

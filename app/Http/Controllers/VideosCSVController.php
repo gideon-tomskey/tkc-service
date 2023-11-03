@@ -42,22 +42,19 @@ class VideosCSVController extends Controller
                 if( $carMake[$row][1] !== null && $carMake[$row][1] !== "" ) {
 
                     //check if there's no empty data and get model meta
-                    if( $model !==  $carMake[$row][0] &&  $carMake[$row][0] !== "" )
+                    if( $model !== $carMake[$row][0] && $carMake[$row][0] !== "" && $carMake[$row][0] !== null )
                     {
-                        $model =  $carMake[$row][0];
+                        $model = $carMake[$row][0];
                         $brand[$make]["models"][$model] = [];
                         $brand[$make]["models"][$model]["model"] = $model;
                         $brand[$make]["models"][$model]["instructions"] = [];
                         $brand[$make]["models"][$model]["collections"] = [];
                     }
-
-
-                    // if( $model ==  $carMake[$row] )
                     
                     $new_model = [];
                     $new_model["collection-name"] =  $carMake[$row][1];
                     $new_model["collection-url"] =  $carMake[$row][2];
-                    $new_model["collection-id"] =  $carMake[$row][3];
+                    $new_model["collection-id"] =  round(floatval($carMake[$row][3]),0);
                     $new_model["video-title"] =  $carMake[$row][4];
                     $new_model["video-url"] =  $carMake[$row][5];
 
@@ -65,7 +62,9 @@ class VideosCSVController extends Controller
                 }
             }
             $videos["brands"][] = $brand[$make];
+
         }
+
 
         foreach ($videos["brands"] as $key => $brand) {
             $videos["brands"][$key]["models"] = array_values($videos["brands"][$key]["models"]);
